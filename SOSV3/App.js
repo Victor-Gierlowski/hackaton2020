@@ -11,7 +11,8 @@ function HomeScreen({navigation}) {
   <Text style={styles.customBtnText}>Pour moi</Text>
   </TouchableOpacity>
   </View>
-    <View style={{ flex:1, alignItems: 'center', justifyContent: 'center',  height: 335, backgroundColor: 'black' }}><TouchableOpacity style={styles.customBtnBG2} onPress={() => navigation.navigate('Validation')}>
+    <View style={{ flex:1, alignItems: 'center', justifyContent: 'center',  height: 335, backgroundColor: 'black' }}>
+    <TouchableOpacity style={styles.customBtnBG2} onPress={() => navigation.navigate('Validation')}>
   <Text style={styles.customBtnText2}>Pour autrui</Text>
   </TouchableOpacity>
   </View>
@@ -21,7 +22,9 @@ function HomeScreen({navigation}) {
 function ValidateScreen({navigation}) {
   return(
   <View style={{ flex:1, backgroundColor: 'yellow' }}>
-
+  <TouchableOpacity style={styles.customBtnBG3} onPress={() => navigation.navigate('Validation')}>
+<Text style={styles.customBtnText2}>S.O.S</Text>
+</TouchableOpacity>
   </View>
 )
 }
@@ -70,6 +73,18 @@ color: "black",
 
 /* Here style the background of your button */
 customBtnBG2: {
+backgroundColor: "orange",
+paddingHorizontal: 30,
+paddingVertical: 5,
+borderRadius: 35
+},
+customBtnText3: {
+fontSize: 69,
+fontWeight: "bold",
+color: "black",
+},
+/* Here style the background of your button */
+customBtnBG3: {
 backgroundColor: "orange",
 paddingHorizontal: 30,
 paddingVertical: 5,

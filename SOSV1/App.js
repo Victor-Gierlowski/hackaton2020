@@ -1,8 +1,9 @@
 import * as React from 'react';
-import { View, Text, Button, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, Button, StyleSheet, TouchableOpacity, AppRegistry } from 'react-native';
 import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
-import MapView from 'react-native-maps';
+import Communications from 'react-native-communications';
+
 
 
 function HomeScreen({navigation}) {
@@ -23,21 +24,29 @@ function HomeScreen({navigation}) {
 }
 function ValidateScreen({navigation}) {
   return(
-  <View style={{ flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
-  <TouchableOpacity style={styles.customBtnBG3} onPress={() => navigation.navigate('Confirmation')}>
-<Text style={styles.customBtnText3}>S.O.S</Text>
-</TouchableOpacity>
+  <View style={{ flex:1, alignItems: 'center',  backgroundColor: 'white' }}>
+  <TouchableOpacity style={styles.customBtnBG3} onPress={() => Communications.phonecall('0695505137', true)}>
+  <Text style={styles.customBtnText3}>S.O.S</Text>
+  </TouchableOpacity>
+  <View style={{ flex:1, alignItems: 'center', justifyContent:'center',  backgroundColor: '#a9a9a9', marginTop:190}}>
+  <Text style={styles.customBtnText5}>À titre informatif:</Text>
+  <Text style={styles.customBtnText6, {alignItems:'center', fontSize: 20,
+  marginTop:0,
+  color:'white',
+  backgroundColor: "#a9a9a9",
+  paddingHorizontal: 20,
+  paddingVertical: 0,
+  borderRadius: 0,
+textAlign:'center',}}>Une utilisation excessive peut entrainer des poursuites.</Text>
+  <TouchableOpacity style={styles.customBtnBG5}>
+  </TouchableOpacity>
+  </View>
   </View>
 )
 }
 function ConfirmationScreen({navigation}) {
-  return(
-  <View style={{ flex:1, alignItems: 'center', justifyContent: 'center', backgroundColor: 'white' }}>
-  <MapView />
+  }
 
-  </View>
-)
-}
 const Stack = createStackNavigator();
 
 function App() {
@@ -76,23 +85,50 @@ color: "black",
 },
 
 customBtnBG2: {
-backgroundColor: "orange",
+backgroundColor: "red",
 paddingHorizontal: 30,
 paddingVertical: 5,
 borderRadius: 35
 },
 customBtnText3: {
+
 fontSize: 69,
 fontWeight: "bold",
 color: "red",
 },
 
 customBtnBG3: {
+  marginTop: 225,
 backgroundColor: "black",
 paddingHorizontal: 70,
 paddingVertical: 100,
 borderRadius: 100
-}
+},
+
+customBtnBG4: {
+marginTop:100,
+alignItems:'center',
+backgroundColor: "#a9a9a9",
+paddingHorizontal: 500,
+paddingVertical: 80,
+borderRadius: 100
+
+
+},
+
+customBtnText5: {
+fontSize: 18,
+marginTop:0,
+fontWeight: "bold",
+color: "red",
+backgroundColor: "#a9a9a9",
+paddingHorizontal: 132,
+paddingVertical: 0,
+borderRadius: 500
+
+},
+customBtnText6: {},
+
 });
 
 

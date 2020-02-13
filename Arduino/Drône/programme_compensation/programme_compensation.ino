@@ -27,7 +27,7 @@ float targetAltitude;
 long gndProximity;
 long masterGndProximity;
 boolean averageGndProximity=false;
-boolean start = false;
+boolean start = false; 
 boolean calib = false;
 boolean emergency = false;
 boolean altitudeChange = false;
@@ -45,10 +45,10 @@ Ultrasonic ultrasonic(2);
 //Servo trappe + Bluetooth
 #define Tx 10
 #define Rx 11
-#define servoTrappe 12
+#define servoTrappe 8
 SoftwareSerial bluetoothSerial(Tx,Rx);
 Servo servoT;
-
+boolean trappeOuverte = false;
 /*macro*/
 
 #define engineConforming enginePower1.write(engineSpeed1);enginePower2.write(engineSpeed2);enginePower3.write(engineSpeed3);enginePower4.write(engineSpeed4);
@@ -57,22 +57,15 @@ Servo servoT;
 
 //defining values for I²C sensors
 #define BNO055_SAMPLERATE_DELAY_MS (100)
-Adafruit_BNO055 bno = Adafruit_BNO055();
-
-/* Fonctions pour livrer le matériel */
-void degoupiller(){
-  servoT.write(180);
-}
-
-void goupiller(){
-  servoT.write(0);
-}
+Adafruit_BNO055 bno = Adafruit_BNO055(); 
 
 
-void setup(){
+void setup(){  
+  Serial.begin(9600);
   //Trappe setup
   bluetoothSerial.begin(9600); // Setup le module bluetooth
   servoT.attach(servoTrappe);
+  goupiller();
   //pins 4 EVERYTHING
   enginePower1.attach(4);
   enginePower2.attach(5);
@@ -81,21 +74,16 @@ void setup(){
   pinMode(22, OUTPUT);
   pinMode(24, OUTPUT);
   pinMode(25, OUTPUT);
-  //orientation sensor setup
-  Serial.begin(9600);
+  Serial.println("test"); 
 
-  // Tant qu'on a pas de réponse du module bluetooth on attend
-  while(!false){
-    if(bluetoothSerial.available()) // Si le module lis quelque chose on casse la boucle
-      break;
-  }
+  //orientation sensor setup
   Serial.println("Orientation Sensor Test"); Serial.println("");
 //  sensor initialisation
   if(!bno.begin())
   {                                                                  //BNO055
     Serial.print("Ooops, no BNO055 detected ... Check your wiring or I2C ADDR!");
     while(1);
-  }
+  }                               
   delay(1000);
   bno.setExtCrystalUse(true);
   delay(500);
@@ -107,7 +95,7 @@ void loop(){
 //  calib=true;
 //  while (calib==false)
 //    {
-//
+//      
 //      digitalWrite(24, HIGH);
 //      digitalWrite(25, HIGH);
 //      Serial.println("La calibration doit être effectuée");
@@ -135,7 +123,7 @@ void loop(){
 //      delay(500);
 //      digitalWrite(25, LOW);
 //      while (accel != 3)
-//        {
+//        { 
 //          bno.getCalibration(&syst, &gyro, &accel, &mag);
 //          Serial.print("Calibration de l'accéléromètre:  ");
 //          Serial.println(accel, DEC);
@@ -150,7 +138,7 @@ void loop(){
 //      delay(200);
 //      digitalWrite(25, LOW);
 //      while (mag != 3)
-//        {
+//        { 
 //          bno.getCalibration(&syst, &gyro, &accel, &mag);
 //          Serial.print("Calibration du magnétomètre:  ");
 //          Serial.println(mag, DEC);
@@ -170,16 +158,21 @@ void loop(){
 //      Serial.println("");
 //      Serial.println("CALIBRATION OKAY");
 //      Serial.println("");
-//      Serial.println("===================================================");
+//      Serial.println("===================================================");    
 //    }
-
+      
 /* ============== Allumer les leds RGB à la fin de la calibration  ======================== */
 
       digitalWrite(22, HIGH);
       digitalWrite(24, HIGH);
-
+      // Tant qu'on a pas de réponse du module bluetooth on attend
+    while(!false){
+      Serial.println("Attente bluetooth");
+      if(bluetoothSerial.available()) // Si le module lis quelque chose on casse la boucle
+        break;
+    }
     Serial.println("go");
-    delay(5000);
+    delay(15000);
 //    while(masterEngineSpeed<60)
 //    {
 //      Serial.println("masterEngine++");
@@ -196,31 +189,32 @@ void loop(){
     masterEngineSpeed = 45 ;
     if (averageGndProximity==false)
     {
-      Serial.println("test1");
+      Serial.println("Phase de decollage");
       ultrasonicTakeoff();
-      Serial.println("test2");
+      Serial.println("Fin de décollage");
       Serial.println(gndProximity);
       averageGndProximity=true;
     }
-
+    
     masterGndProximity=gndProximity;
     Serial.println(masterGndProximity);
-    Serial.println("Phase de decollage");
-    while (abs(gndProximity-masterGndProximity)<3) {
-      delay(50);
-      Serial.println(abs(gndProximity-masterGndProximity));
-      ultrasonicTakeoff();
-      Serial.print("actuel - base:  ");
-      Serial.println(abs(gndProximity-masterGndProximity));
-      masterEngineSpeed++;
-      Serial.println (masterEngineSpeed);
-      masterEngineConforming;
-    }
+//    while (abs(gndProximity-masterGndProximity)<3) {
+//      delay(50);    
+//      Serial.print("gndproximity - masterproximity");  
+//      Serial.println(abs(gndProximity-masterGndProximity));
+//      ultrasonicTakeoff();
+//      Serial.print("actuel - base:  ");
+//      Serial.println(abs(gndProximity-masterGndProximity));
+//      masterEngineSpeed++;
+//      Serial.println (masterEngineSpeed);
+//      masterEngineConforming;  
+//    }
    Serial.println("Deccollé");
    masterEngineSpeed=masterEngineSpeed-1;
    digitalWrite(25, HIGH);
    flightMode=1;                                                      //setting for takeoff
-  }    delay(20000);
+  }    
+  delay(5000);
   if (flightMode==1){                                                  //takeoff
     Serial.println("flmod1");
     delay(500) ;
@@ -237,17 +231,18 @@ void loop(){
     while (abs(gndProximity-masterGndProximity)<100){
       delay(10);
       gndProximity=ultrasonic.MeasureInCentimeters();
-      Serial.println("Distance en cm: ");
+      Serial.print("Distance en cm: ");
       Serial.println(gndProximity);
+      Serial.print("Différence: ");
+      Serial.println(abs(gndProximity-masterGndProximity));
       digitalWrite(25, HIGH);
     }
     Serial.println("1 mètre");
-    digitalWrite(25, LOW);
     flightMode=2;
     Serial.println("Stationnaire");
   }
     targetPitch=0;
-    while (stab<1000)
+    while (stab<250)
     {
       Serial.println("Stabilisation");
       stabilisation();
@@ -259,7 +254,10 @@ void loop(){
       masterEngineConforming;
       delay(200);
     }
-    degoupiller();
+    if(!trappeOuverte){
+      degoupiller();
+      trappeOuverte = true;    
+    }
     delay(2000);
     goupiller();
 
@@ -284,7 +282,7 @@ void loop(){
 //    engineSpeed1=masterEngineSpeed-2;
 //    engineSpeed2=masterEngineSpeed-2;
 //    engineSpeed3=masterEngineSpeed-2;
-//    engineSpeed4=masterEngineSpeed-2;
+//    engineSpeed4=masterEngineSpeed-2;            
 //    engineConforming;
 //    digitalWrite(25, HIGH);
 //    delay(1000);
@@ -310,11 +308,11 @@ void loop(){
 //    delay(1000);
 //    digitalWrite(25, LOW);
 //    flightMode=4;
-//    masterEngineSpeed=35;
+//    masterEngineSpeed=35;            
 //    masterEngineConforming;
-//
+//    
 //  }
-//}
+}
 void attitudeConformation(){
   Serial.println("Altitude Conforming String Activated!");
   //insert gps string here, or ultrasonic, or perhaps earlier in the programm
@@ -449,7 +447,7 @@ void stabilisation() {
     delay(1);
    }
    engineSpeed4=engineSpeed4+1;
-   engineConforming;
+   engineConforming; 
    engineSpeed1=stabEngPwr1Mem;
    engineSpeed2=stabEngPwr2Mem;
    engineSpeed3=stabEngPwr3Mem;
@@ -495,6 +493,7 @@ void ultrasonicTakeoff(){
 //    }
     //insert next step!
 }
+
 void ultrasonicSustentation(){
    long x1, x2, x3, x4, x5;
    long startTime;
@@ -528,4 +527,13 @@ void ultrasonicSustentation(){
     }
     gndProximity=(x1+x2+x3+x4+x5)/5;
    }
+}
+
+/* Fonctions pour livrer le matériel */
+void degoupiller(){
+  servoT.write(180);
+}
+
+void goupiller(){
+  servoT.write(0);
 }
